@@ -1,0 +1,49 @@
+       SUBROUTINE MMTS4 ( ABIG, AOBR )
+CXXX----KOMèãEKC "MS1" --> BEPCàü 1.0  (OT ÑEKAÅPü 1986 É.)--
+C    SUBROUTINE:   MMTS4 ( ABIG, AOBR )
+C   ----------
+C
+C DIGIT FOR SIMETRIC MATRIX #ABIG# MATRIX #AOBR#:=#ABIG#**(-1)
+C       DIMENSIONS FOR MATRIX IS 4.
+C
+CZZZ---------------------------------------------------------
+       DIMENSION ABIG(*), AOBR(*)
+       A11 = ABIG( 1  )
+       A12 = ABIG( 2  )
+       A13 = ABIG( 3  )
+       A14 = ABIG( 4  )
+       A22 = ABIG( 5  )
+       A23 = ABIG( 6  )
+       A24 = ABIG( 7  )
+       A33 = ABIG( 8  )
+       A34 = ABIG( 9  )
+       A44 = ABIG( 10  )
+C-------------------------------------------------------------
+       XDEN = 1./(A44*A33*A22*A11-A44*A33*A12**2-A44*A23**2*A11+2.*A44*
+     X A23*A13*A12-A44*A22*A13**2-A34**2*A22*A11+A34**2*A12**2+2.*A34*
+     X A24*A23*A11-2.*A34*A24*A13*A12-2.*A34*A23*A14*A12+2.*A34*A22*A14
+     X *A13-A33*A24**2*A11+2.*A33*A24*A14*A12-A33*A22*A14**2+A24**2*A13
+     X **2-2.*A24*A23*A14*A13+A23**2*A14**2)
+       AOBR( 1  ) = XDEN*(A44*A33*A22-A44*A23**2-A34**2*A22+2.*A34*A24*
+     X A23-A33*A24**2)
+       AOBR( 2  ) = XDEN*(-A44*A33*A12+A44*A23*A13+A34**2*A12-A34*A24*
+     X A13-A34*A23*A14+A33*A24*A14)
+       AOBR( 3  ) = XDEN*(A44*A23*A12-A44*A22*A13-A34*A24*A12+A34*A22*
+     X A14+A24**2*A13-A24*A23*A14)
+       AOBR( 4  ) = XDEN*(-A34*A23*A12+A34*A22*A13+A33*A24*A12-A33*A22*
+     X A14-A24*A23*A13+A23**2*A14)
+       AOBR( 5  ) = XDEN*(A44*A33*A11-A44*A13**2-A34**2*A11+2.*A34*A14*
+     X A13-A33*A14**2)
+       AOBR( 6  ) = XDEN*(-A44*A23*A11+A44*A13*A12+A34*A24*A11-A34*A14*
+     X A12-A24*A14*A13+A23*A14**2)
+       AOBR( 7  ) = XDEN*(A34*A23*A11-A34*A13*A12-A33*A24*A11+A33*A14*
+     X A12+A24*A13**2-A23*A14*A13)
+       AOBR( 8  ) = XDEN*(A44*A22*A11-A44*A12**2-A24**2*A11+2.*A24*A14*
+     X A12-A22*A14**2)
+       AOBR( 9  ) = XDEN*(-A34*A22*A11+A34*A12**2+A24*A23*A11-A24*A13*
+     X A12-A23*A14*A12+A22*A14*A13)
+       AOBR( 10  ) = XDEN*(A33*A22*A11-A33*A12**2-A23**2*A11+2.*A23*A13
+     X *A12-A22*A13**2)
+       RETURN
+       END
+

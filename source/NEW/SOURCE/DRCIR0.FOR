@@ -1,0 +1,113 @@
+         SUBROUTINE DRCIR0( KAR, DAT, BA0, KNOT, PAR0, IRC )
+CXXX----KOMèãEKC "MS1" --> BEPCàü 1.0  (OT ÑEKAÅPü 1986 É.)------------
+C   èOÑèPOÉPAMMA:   DRCIR0( KAR, DAT, BA0, KNOT, PAR0, IRC )
+C   ------------
+C   HAáHAóEHàE:    *** OÅPAÅOTóàK #ñEèú:
+C  ------------       #ñEèú  N
+C
+C                  N - HOMEP KAHAãA BBOÑA àHîOPMAñàà;
+C
+C                  èPà N "OèìôEHO" àãà "OòàÅOóHO" ìCTAHABãàBAETCü
+C                  PABHõM NRDR KAHAãì;
+C
+C                  îOPMAPìET MACCàBõ BA0, KNOT, PAR0
+C                  ( 1-ü óACTú ÑEPàKTàBõ #ñEèú )
+C   METOÑ:         CM. è/è INPUT0,INPUT2
+C   -----
+C   èAPAMETPõ:     KAR - CàMBOãúHAü CTPOKA ÑEPàKTàBõ,
+C   ---------      DAT - MACCàB óàCEã ÑEPàKTàBõ;
+C                  IRC = 1  MACCàBõ BA0, KNOT, PAR0 OèPEÑEãEHõ;
+C                      = 2  àHîOPMAñàü HE èPàHüTA;
+C                  ÑP. èAP. CM. INPUT0,INPUT2
+C
+C   èOÑèPOÉPAMMõ:  1. COMMON PROF1
+C   -------------  2. INPUT0  INPUT2   PPNCOM  READST
+C   èPàMEóAHàE:    1. B CãìóAE "îATAãúHõX" OòàÅOK - STOP 666
+C   ----------        ( KOHEñ CàCTEMHOÉO KAHKãA NRDR )
+C                  2. èOÑPOÅHEE CM. INPUT0,INPUT2
+C                  3. MACCàBA BA0, KNOT, PAR0 - àHàñààPOBAHHõ;
+C
+CZZZ-------------------------------------------------------------------
+         COMMON/PROF1/ MASPRT(200)
+         DIMENSION BA0(*), PAR0(*), KNOT(*), KAR(*), DAT(*), DSNAME(11)
+         EXTERNAL READST
+         INTEGER BA0, FMSWAL, DIAL
+         EQUIVALENCE ( MASPRT(13),  NWTR )
+         EQUIVALENCE ( MASPRT(14),  NWTRE )
+         EQUIVALENCE ( MASPRT(74),  FMSWAL )
+         EQUIVALENCE ( MASPRT(12),  NRDR   )
+         EQUIVALENCE ( MASPRT(15),  DIAL   )
+         DATA DSNAME/ 11*'    '/
+C-->  îàKCAñàü ìKAáATEãEâ
+         IBA01 = BA0(3)
+         IKNOT1 = KNOT(3)
+         IPAR01 = IFIX (PAR0(3))
+C-->  C KAKOÉO KAHAãA áAèPOC BBOÑA Ñãü #ñEèú:
+         NRDR1 = NRDR
+         IF ( DAT(1) .EQ. 0.0 ) GO TO 1
+C--> óTO-TO ECTú
+         NRDR1 = IFIX( DAT(2) )
+C--> KOHTPOãú
+         IF ( NRDR1 .LE. 0  .OR. NRDR1. GT. 100 .OR.
+     =  NRDR1 .EQ. NWTR  .OR. NRDR1 .EQ. NWTRE ) NRDR1 = NRDR
+C--> COOÅôàM..
+1        WRITE(NWTR, 50 ) NRDR1
+50     FORMAT(/' *** #ñEèú Ø‡®≠Ô‚†:==> ÆØ®·†≠®• Ê•Ø® ¢¢Æ§®‚·Ô Á•‡•ß ',
+     = '™†≠†´ # ',I2, ' ***'/)
+         IRC = 1
+C---> HAèEóATAEM.
+       CALL PPNCOM(3,NWTR)
+C######################################################################
+C--->  HAóàHAEM BBOÑàTú ÑAHHõE
+         ii_rr = 0
+         IF ( NRDR1 .NE. NRDR ) CALL KSOPEN(NRDR1,0,ii_rr)
+         IF ( ii_rr .NE. 0 )  STOP 666
+C----------------------------------------------------------------------
+         CALL INPUT0( BA0, KNOT, PAR0, NRDR1, DSNAME, READST,  III )
+         IF ( NRDR1 .NE. NRDR ) CLOSE (NRDR1)
+C--->ECãà #CÅPOC àãà óTO-TO àÉHOPàPOBAãà, TO BàÑàMO "èPàEXAãà"...
+         IF ( III .EQ. 1  .OR. III .EQ. 2 ) IRC = 2
+         IF ( IRC .EQ. 2 ) RETURN
+C--> A MOÜET ùTO "ìCE"
+         IF ( III .EQ. 3 ) GO TO 9999
+C--> A MOÜET èOãìóEHA ÑEPàKTàBA #MEX
+         IF ( III .EQ. 4 ) GO TO 2
+         RETURN
+C######################################################################
+C  OÅPAÅOTóàK
+C  èOÑÑEPàKTàBõ        METKA 2
+C  #MEX
+C----------------------------------------------------------------------
+2       CONTINUE
+        IF( BA0(3) .NE. IBA01 .OR. KNOT(3) .NE. IKNOT1 .OR.
+     *      IFIX(PAR0(3)) .NE. IPAR01  ) GO TO 5
+        IF( DIAL .EQ. 0 ) WRITE(NWTR,9995)
+9995   FORMAT(/20X,
+     *         ' *** MOÑEãàPìEMAü CàCTEMA HE COÑEPÜàT ùãEKTPàóECKOâ',
+     *         ' ñEèà ***'/)
+        IF( DIAL .EQ. 1 ) WRITE(NWTR,9996)
+9996   FORMAT(/10X,
+     *         ' *** MOÑEãàPìEMAü CàCTEMA HE COÑEPÜàT ùãEKTPàóECKOâ',
+     *         ' ñEèà ***'/)
+5      CONTINUE
+C----------------------------------------------------------------------
+C-->  BBOÑàM ÑAãúòE
+C!!!     IF ( NRDR1 .NE. NRDR ) CALL KSOPEN(NRDR1,0,ii_rr)
+C!!!     CALL INPUT2( BA0, KNOT, PAR0, NRDR1,  READST,  III )
+C!!!     IF ( NRDR1 .NE. NRDR ) CLOSE (NRDR1)
+C--->ECãà #CÅPOC àãà óTO-TO àÉHOPàPOBAãà, TO BàÑàMO "èPàEXAãà"...
+         IF ( III .EQ. 1  .OR. III .EQ. 2 ) IRC = 2
+         IF ( IRC .EQ. 2 ) RETURN
+C--> A MOÜET ùTO "ìCE"
+         IF ( III .EQ. 3 ) GO TO 9999
+         RETURN
+C######################################################################
+C     KOHEñ BXOÑHOÉO HAÅOPA
+C---> KOHóAEM....
+9999    CONTINUE
+        WRITE(NWTR,51)
+51     FORMAT(//' *** PAÅOTA èPEPõBAETCü - KAHAã CàCTEMHOÉO BBOÑA HEÑOCT
+     =ìèEH ***'//)
+         STOP 666
+         END
+
