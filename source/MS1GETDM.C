@@ -1,0 +1,124 @@
+/* MS1GETDM  */
+#include <stdio.h>
+#include <fcntl.h>
+#include <sys\types.h>
+#include <sys\stat.h>
+#include <io.h>
+#include <errno.h>
+#include <process.h>
+#include <stdlib.h>
+#define MAX 100
+static char *args[10];
+static unsigned char bufN[MAX],bufT[MAX],DD[50],DM[50];
+main()
+{ int i,j, flag = 0;
+  int rc;
+  unsigned char *pdm;
+  static
+   char NAME[3][80] = {"MS1_DATA.DMN", "MS1_DATA.DMT", "MS1DIGIT.LNK" };
+  static
+  int oflag[3] = {O_BINARY|O_RDONLY, O_BINARY|O_CREAT|O_WRONLY,
+                                         O_TEXT|O_CREAT|O_WRONLY };
+  static
+  int pmode[3] = {S_IREAD, S_IREAD|S_IWRITE, S_IWRITE };
+  int handler[3];
+
+  for(i=0;i< MAX;i++)
+   bufN[i]=bufT[i] = 0x00;
+
+  if((handler[0]=open(NAME[0],oflag[0],pmode[0])) ==-1 )
+        { fprintf(stderr,"\n Невоэможно открыть файл %s\n",NAME[0]);
+          exit(666);
+        };
+  read(handler[0],bufN,MAX);
+/*for(i=0;i< MAX;i++)
+   fprintf(stderr,"%d    %x \n",i, bufN[i] );   */
+
+  close(handler[0]);
+
+  if((handler[1]=open(NAME[1],oflag[0],pmode[0])) ==-1 )
+        { /* создать надо... и записать LNK и TLINK */
+          fprintf(stderr,"\n ******  файл описания собранного модуля MS1DIGIT не открывается \n");
+          if((handler[1]=open(NAME[1],oflag[1],pmode[1])) ==-1 )
+            { fprintf(stderr,"\n Невоэможно открыть файл %s для записи \n",NAME[1]);
+              exit(666);
+             };
+          write(handler[1],bufN, MAX);
+          close(handler[1]);
+          flag=1;
+          if((handler[1]=open(NAME[1],oflag[0],pmode[0])) ==-1 )
+            { fprintf(stderr,"\n Невоэможно открыть файл %s для чтения (1) \n",NAME[1]);
+              exit(666);
+             };
+        };
+  if(read(handler[1],bufT,MAX) == -1 )
+            { fprintf(stderr,"\n Невоэможно открыть файл %s для чтения (2) \n",NAME[1]);
+              exit(666);
+             };
+  close(handler[1]);
+  /* сравнить .... */
+  for(i=0; i< MAX           ; i++)
+      if(bufN[i]  != bufT[i] ) { flag=1;
+                                 fprintf(stderr,"\n %d монитор DM не совпадает \n",i+1);
+                                 break;
+                          /*     exit(-1);     */
+                                };
+  if ( flag == 1 ) /*  создать новый DMT */
+       {  if((handler[1]=open(NAME[1],oflag[1],pmode[1])) ==-1 )
+            { fprintf(stderr,"\n Невоэможно открыть файл %s для записи \n",NAME[1]);
+              exit(666);
+             };
+          write(handler[1],bufN, MAX);
+          close(handler[1]);
+       };
+
+  if ( flag == 1 ) /*  создать EXE */
+        { fprintf(stderr,"\n Создание загрузочного модуля для #СЧЕТ\n");
+          if((handler[2]=open(NAME[2],oflag[2],pmode[2])) ==-1 )
+             { fprintf(stderr,"\n Невоэможно открыть файл %s для эаписи\n",NAME[2]);
+               exit(666);
+              };
+          write(handler[2],"\\MS1\\OBJ\\MS1DIGIT.OBJ+\n",23);
+          write(handler[2],"\\MS1\\OBJ\\PROF1.OBJ+\n",20);
+          write(handler[2],"\\MS1\\OBJ\\PROF2.OBJ+\n",20);
+          write(handler[2],"\\MS1\\OBJ\\SERVZ1.OBJ+\n",21);
+          write(handler[2],"\\MS1\\OBJ\\SERVZ2.OBJ+\n",21);
+          write(handler[2],"\\MS1\\OBJ\\SERVZ3.OBJ+\n",21);
+          for(i=0; i< MAX; i++)
+/*              if( bufN[i] == 0xFF) для RMFORT      */
+                if( bufN[i] == 0x01)
+                   { pdm=itoa(i+1,DD,10);
+                     DM[0] = '\0';
+                     strcat(DM,"\\MS1\\OBJ\\DM");
+                     for(j=1;  j<=(4-strlen(DD)); j++) strcat(DM,"0");
+                     strcat(DM,DD);
+                     strcat(DM,"+\n");
+                     write(handler[2],DM,17);
+                    };
+          write(handler[2],"\\MS1\\OBJ\\DM0000\n",16);
+          write(handler[2],"MS1DIGIT.EXE      /se:512\n",26);
+/*        write(handler[2],"MS1DIGIT.EXE             \n",26);   */
+          write(handler[2],"MS1DIGIT.MAP\n",13);
+          write(handler[2],"\\MS1\\LIB\\MS1LIB.LIB+\n",21);
+/*        write(handler[2],"\\MS1\\LIB\\MS1PRG.LIB+\n",21);         */
+/*        write(handler[2],"\\MS1\\LIB\\MS1DM.LIB+\n",20);          */
+/*        write(handler[2],"\\RMFORT\\EM_LIB\\RMFORT.LIB;\n",27);   */
+          write(handler[2],"\\MS1\\LIB\\RMFORT.LIB;                   \n",40);
+          close(handler[2]);
+          /*  Tlink ....... */
+          args[0]="link.exe";
+          args[1]="@MS1DIGIT.LNK";
+ /*       args[2]="/m";   */
+ /*       args[3]="/s";   */
+          args[2]=NULL;
+          args[5]=NULL;
+          rc=spawnvp(P_WAIT, args[0], args );
+          /* printf("\n rc=%d   \n",rc);  */
+          if(rc ==-1)
+             { perror("\nОшибка вызова процесса сборки расчетной части MS1\n");
+               exit(666);
+              };
+        };
+   exit(0);
+}
+

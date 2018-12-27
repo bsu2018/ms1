@@ -1,0 +1,422 @@
+      SUBROUTINE PRINTD(KOD,IBIG,PR,TAB,RAB,TBUF,RBUF,KTAB,KST,IB32,N)
+CXXX----KOMèãEKC "MS1" --> BEPCàü 1.0  (OT ÑEKAÅPü 1986 É.)------------
+C   èOÑèPOÉPAMMA: PRINTD(KOD,IBIG,PR,TAB,RAB,TBUF,RBUF,KTAB,KST,IB32,N)
+C   ------------
+C   HAáHAóEHàE:   "èãOTHAü" èEóATú MACCàBA TAB(RAB) HA N-KAHAã
+C   ----------     <àMü>=<áHAóEHàE>,...,<àMü>=<áHAóEHàE>
+C                       1           ...      3   (KOã-BO B CTPOKE)
+C
+C                  èPà IBIG=1 "PACòàPEHHAü" èEóATú
+C                  <OÅOáHAóEHàE>   <áHAóEHàE>   <HAáHAóEHàE>
+C                      ...             ...           ...
+C                      ...             ...           ...
+C                      ...             ...           ...
+C
+C   èAPAMETPõ:    PR=0 ---> TAB
+C   ---------     PR=1 ---> RAB
+C
+C   èPàMEóAHàE: BCèOMOÉATEãúHAü è/è Ñãü DRMET0
+C   ----------
+C
+CZZZ-------------------------------------------------------------------
+      INTEGER ZAP,RAV,PR,TAB,TBUF,PROB
+      DIMENSION TAB(1),RAB(1),TBUF(IB32),RBUF(IB32)
+      DIMENSION KDIV(10)
+      
+      integer iRBUF(100)
+    !!  EQUIVALENCE (ii,rr)
+C
+CCCCCCCCCC     integer ZAP, RAV, RZAP, RRAV, PROV
+        integer  RPROB !@@@, RRAV !!!!!
+        EQUIVALENCE (RRAV, RAV), (RPROB, PROB),  (RZAP, ZAP)
+
+        EQUIVALENCE (APR1,iAPR1), (APR2,iAPR2), (APR3,iAPR3) 
+
+!@      DATA RRAV/'='/,  
+        !!!!DATA  RZAP/','/
+      DATA ZAP/','/,RAV/'='/, PROB/' '/
+!@      DATA RPROB/' '/
+      DATA KKDIV/4/,KDIV/40,48,94,116,6*0/
+C
+      IP=1-KST
+      IF (IBIG.EQ.1) GO  TO 1010
+ 1003 IB=0
+      DO 1050 I=1,IB32
+      TBUF(I)=PROB
+ 1050 RBUF(I)=RPROB
+ 1005 IP=IP+KST
+      IF (IP.GE.(KST*KTAB)) GO TO 1002
+      IF (TAB(IP).NE.PR) GO TO 1005
+      IF (KOD.EQ.2.AND.TAB(IP+11).NE.1) GO TO 1005
+      IF (TAB(IP+1).EQ.0) GO TO 1005
+      IT1=IP+2
+      IT2=IP+9
+      DO 1001 IT=IT1,IT2
+      IB=IB+1
+      IF (PR.EQ.1) GO TO 1055
+      TBUF(IB)=TAB(IT)
+      GO TO 1001
+ 1055 RBUF(IB)=RAB(IT)
+ 1001 CONTINUE
+      IB=IB+1
+      IF (PR.EQ.1) GO TO 1016
+      TBUF(IB)=RAV
+      GO TO 1017
+ 1016 RBUF(IB)=RRAV
+ 1017 IB=IB+1
+      IF (PR.EQ.1) GO TO 1018
+      TBUF(IB)=TAB(IP+10)
+      GO TO 1019
+ 1018 RBUF(IB)=RAB(IP+10)
+C--> èEPEBOÑ èO KDIV-ìKAáATEãû B ùã. ÉPAÑìCõ
+      DO 1800 IRR=1,KKDIV
+      IF (TAB(IP+12).EQ.KDIV(IRR)) RBUF(IB)=RBUF(IB)*1.8E+4
+ 1800 CONTINUE
+ 1019 IF (IB.EQ.IB32) GO TO 1004
+      IB=IB+1
+      IF (PR.EQ.1) GO TO 1020
+      TBUF(IB)=ZAP
+      GO TO 1005
+ 1020 RBUF(IB)= RZAP
+     !!!    write(N, *) 'RZAP=',RZAP  
+     !!!    write(N, *) 'RBUF(IB)=', RBUF(IB)
+     !!!    write(N,'("RZAP=", A1)'  ) RZAP
+     !!!    write(N,'("IB=", i2, " RUBF=", A1)'  ) IB, RBUF(IB) 
+      GO TO 1005
+ 1004 IF (PR.EQ.1) GO TO 1021
+      IPR1 = TBUF(10)
+      IPR2 = TBUF(21)
+      IPR3 = TBUF(32)
+      WRITE(N,10006) (TBUF(IPR),IPR=1,9)  ,IPR1,
+     *               (TBUF(IPR),IPR=11,20),IPR2,
+     *               (TBUF(IPR),IPR=22,31),IPR3
+10006 FORMAT(2(2X,9A1,I12,A1),2X,9A1,I12  )
+10016 FORMAT(2(2X,9A1,I12,A1))
+10026 FORMAT(  2X,9A1,I12,A1)
+      GO TO 1003
+ 1021 APR1 = RBUF(10)
+      APR2 = RBUF(21)
+      APR3 = RBUF(32)
+    !
+    !   do ix=1,IB32
+    !        rr=RBUF(ix) 
+    !        iRBUF(ix)= ii
+    !   end do
+        !   write(N,*) '@@@ APR1=', APR1, ' APR2=', APR2,' APR3=', APR3 
+        !   write(N,'( "zap=",A1  "  rzap=",A1)' ) ZAP, RZAP 
+        !   write(N,'( "RBUF(11)=",A1  "  TBUF(11)=",A1)' ) RBUF(11), TBUF(11) 
+        !   write(N,'( "RBUF(22)=",A1  "  TBUF(22)=",A1)' ) RBUF(22), TBUF(22) 
+        !   write(N,*) ' RBUF =' 
+        !   write(N,'(i2,1x,A1)' ) ( ix, RBUF(ix),ix=1,32)
+        !   write(N,*) ' iRBUF ='     
+        !   write(N, '(i2, 1x,A1)' ) ( ix, iRBUF(ix),ix=1,32)
+
+      WRITE(N,1006) (RBUF(IPR),IPR=1,9)  ,APR1,
+     *              (RBUF(IPR),IPR=11,20),APR2,
+     *              (RBUF(IPR),IPR=22,31),APR3
+ 1006 FORMAT(2(2X,9A1,G12.5,A1),2X,9A1,G12.5  )
+ 1116 FORMAT(2(2X,9A1,G12.5,A1) )
+ 1026 FORMAT(  2X,9A1,G12.5,A1)
+      GO TO 1003
+ 1002 IF(PR.EQ.1) GO TO 1041
+      IF (IB.LT.1) GO TO 1044
+      IB1=IB-1
+      IPR1 = TBUF(10)
+      IPR2 = TBUF(21)
+      IPR3 = TBUF(32)
+      IF(IB1 .GT. 30 )WRITE(N,10006) (TBUF(IPR),IPR=1,9)  ,IPR1,
+     *                               (TBUF(IPR),IPR=11,20),IPR2,
+     *                               (TBUF(IPR),IPR=22,31),IPR3
+      IF(IB1 .GT. 15  .AND.
+     *   IB1 .LT. 30 )WRITE(N,10016) (TBUF(IPR),IPR=1,9)  ,IPR1,
+     *                               (TBUF(IPR),IPR=11,20),IPR2
+      IF(IB1 .LT. 15 )WRITE(N,10026) (TBUF(IPR),IPR=1,9)  ,IPR1
+      GO TO 1044
+ 1041 IF (IB.LT.1) GO TO 1044
+      IB1=IB-1
+      APR1 = RBUF(10)
+      APR2 = RBUF(21)
+      APR3 = RBUF(32)
+C      WRITE(N,1006) (RBUF(IPR),IPR=1,9)  ,APR1,
+C     *              (RBUF(IPR),IPR=11,20),APR2,
+C     *              (RBUF(IPR),IPR=22,31),APR3
+      IF(IB1 .GT. 30 )WRITE(N,1006) (RBUF(IPR),IPR=1,9)  ,APR1,
+     *                              (RBUF(IPR),IPR=11,20),APR2,
+     *                              (RBUF(IPR),IPR=22,31),APR3
+      IF(IB1 .GT. 15  .AND.
+     *   IB1 .LT. 30 )WRITE(N,1116) (RBUF(IPR),IPR=1,9)  ,APR1,
+     *                              (RBUF(IPR),IPR=11,20),APR2
+      IF(IB1 .LT. 15 )WRITE(N,1026) (RBUF(IPR),IPR=1,9)  ,APR1
+ 1044 RETURN
+ 1010 CONTINUE
+C--> >>PACòàPEHHAü>>>  èEóATú
+      K=KTAB*KST
+      WRITE(N,1014)
+ 1014 FORMAT(2X,'OÅOáHAóEHàE',6X,'áHAóEHàE',12X,'HAáHAóEHàE'/
+     *2X,'-----------',6X,'--------',12X,'----------'/)
+      IKP=0
+      DO 1012 IP=KST,K,KST
+      IKP=IKP+1
+      IKP1=IKP-18
+      IKP2=IKP-35
+      IKP3=IKP-48
+C----------------------------------------------------------------------
+      IK=IP-2
+      GO TO (2,6,9,12,13,14,16,18,31,39,40,48,50,59,60,62,64,66),IKP
+      GO TO (67,68,69,70,71,72,83,77,78,86,89,94,90,95,97,15,56),IKP1
+      GO TO (63,100,101,102,103,104,105,106,107,108,109,110,113),IKP2
+C     GO TO (---),IKP3
+      GO TO 1012
+    2 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2002) TAB(IK)
+ 2002 FORMAT(5X,'NMBA0',7X,G12.5,5X,'MAX KOãàóECTBO ùãEMEHTOB B ñEèà')
+      GO TO 1012
+    6 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2006) TAB(IK)
+ 2006 FORMAT(5X,'NDKNOT',6X,G12.5,5X,'PAáMEPHOCTú MACCàBA KNOT')
+      GO TO 1012
+    9 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2009) TAB(IK)
+ 2009 FORMAT(5X,'NDPAR0',6X,G12.5,5X,'PAáMEPHOCTú MACCàBA PAR0')
+      GO TO 1012
+   12 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2012) TAB(IK)
+ 2012 FORMAT(5X,'NRDR',8X,G12.5,5X,'HOMEP KAHAãA CàCTEMHOÉO BBOÑA')
+      GO TO 1012
+   13 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2013) TAB(IK)
+ 2013 FORMAT(5X,'NWTR',8X,G12.5,5X,'HOMEP KAHAãA CàCTEMHOÉO BõBOÑA')
+      GO TO 1012
+   14 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2014) TAB(IK)
+ 2014 FORMAT(5X,'NWTRE',7X,G12.5,5X,'HOMEP KAHAãA ABAPàâHõX BõBOÑOB')
+      GO TO 1012
+   16 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2016) TAB(IK)
+ 2016 FORMAT(5X,'NWTRD',7X,G12.5,5X,'HOMEP KAHAãA BõBOÑA TBEPÑõX KOèàâ')
+      GO TO 1012
+   18 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2018) TAB(IK)
+ 2018 FORMAT(5X,'NSPOOL',6X,G12.5,5X,'HOMEP KAHAãA îAâãOB HAKOèãEHàü')
+      GO TO 1012
+   31 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2031) RAB(IK)
+ 2031 FORMAT(5X,'MU',10X,G12.5,5X,'CONST METOÑA ãàHEÑÜEPA-BàOãìÉÅà')
+      GO TO 1012
+   39 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2039) RAB(IK)
+ 2039 FORMAT(5X,'EPSKOM',6X,G12.5,5X,'àHTEPBAã >>PABHõE BPEMEHA>>'/
+     *34X,'Ñãü BPEMEHà KOMMìTAñàà BEHTàãEâ')
+      GO TO 1012
+   40 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      R=RAB(IK)*1.8E+4
+      WRITE(N,2040) R
+ 2040 FORMAT(5X,'H0DATA',6X,G12.5,5X,'áAÑAHHõâ HAóAãúHõâ òAÉ àHTEÉPàP.')
+      GO TO 1012
+   48 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      R=RAB(IK)*1.8E+4
+      WRITE(N,2048) R
+ 2048 FORMAT(5X,'HOUTT',7X,G12.5,5X,'òAÉ BõBOÑA KOèàMOâ àHîOPMAñàà')
+      GO TO 1012
+   50 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2050) RAB(IK)
+ 2050 FORMAT(5X,'ZEROCP',6X,G12.5,5X,'>>MAòàHHõâ HOãú>>')
+      GO TO 1012
+   59 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2059) RAB(IK)
+ 2059 FORMAT(5X,'GVENT6',6X,G12.5,5X,'èPOBOÑàMOCTú >>áAKPõTOÉO>>'/
+     *34X,'BEHTàãü Ñãü >>îATAãúHõX>> BõPOÜÑEHàâ'/
+     *34X,'CàCTEMõ')
+      GO TO 1012
+   60 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2060) TAB(IK)
+ 2060 FORMAT(5X,'FTEST',7X,G12.5,5X,'îãAÉ TECTàPOBAHàü')
+      GO TO 1012
+   62 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2062) RAB(IK)
+ 2062 FORMAT(5X,'HXMIN',7X,G12.5,5X,'MIN òAÉ BPEMEHà BOáMOÜHOâ KOMMì-'/
+     *36X,'TAñàà; èPà =0 --> HET BõBOÑA B HAó. COCT.')
+      GO TO 1012
+   64 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2064) TAB(IK)
+ 2064 FORMAT(5X,'SEQTRX',6X,G12.5,5X,'îãAÉ >>KOHTPOãú>> BõPOÜÑEHHOCTà'/
+     *34X,'CàCTEMõ')
+      GO TO 1012
+   66 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2066) TAB(IK)
+ 2066 FORMAT(5X,'MITER',7X,G12.5,5X,'MAX KOãàóECTBO àTEPAñàâ;'/
+     *36X,'èPà =0 KOHTPOãú HE èPOàáBOÑàTCü')
+      GO TO 1012
+   67 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2067) RAB(IK)
+ 2067 FORMAT(5X,'EITER',7X,G12.5,5X,'>>ãOKAãúHAü>> ÑOèìCTàMAü OòàÅKA')
+      GO TO 1012
+   68 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2068) TAB(IK)
+ 2068 FORMAT(5X,'FRUNGE',6X,G12.5,5X,'îãAÉ >>TECT PìHÉE>>')
+      GO TO 1012
+   69 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2069) RAB(IK)
+ 2069 FORMAT(5X,'ERUNGE',6X,G12.5,5X,'>>ÉãOÅAãúHAü>> TOóHOCTú PACóETA')
+      GO TO 1012
+   70 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2070) TAB(IK)
+ 2070 FORMAT(5X,'NRUNGE',6X,G12.5,5X,'MAX ÑOèìCTàMOE KOãàóECTBO'/
+     *34X,'>>ÑPOÅãEHàâ>> H0DATA')
+      GO TO 1012
+   71 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2071) TAB(IK)
+ 2071 FORMAT(5X,'SEQTIM',6X,G12.5,5X,'MAX ÑOèìCTàMOE KOãàóECTBO'/
+     *34X,'>>CÅPOCOB>> B TN')
+      GO TO 1012
+   72 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2072) RAB(IK)
+ 2072 FORMAT(5X,'H0MIN',7X,G12.5,5X,'MIN ÑOèìCTàMõâ òAÉ àHTEÉPàPOBAHàü')
+      GO TO 1012
+   83 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2083) TAB(IK)
+ 2083 FORMAT(5X,'NFILER',6X,G12.5,5X,'HOMEP KAHAãA Ñãü PAÅOóEÉO îAâãA')
+      GO TO 1012
+   77 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2077) RAB(IK)
+ 2077 FORMAT(5X,'ICLOSE',6X,G12.5,5X,'TOK >>áAèàPAHàü>> BEHTàãEâ')
+      GO TO 1012
+   78 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2078) RAB(IK)
+ 2078 FORMAT(5X,'UOPEN',7X,G12.5,5X,'HAèPüÜEHàE >>OTKPõTàü>> BEHTàãEâ ')
+      GO TO 1012
+   86 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2086) TAB(IK)
+ 2086 FORMAT(5X,'PONPUN',6X,G12.5,5X,'îãAÉ èEó. èPOTOKOãA #TECT-PìHÉE#')
+      GO TO 1012
+   89 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2089) TAB(IK)
+ 2089 FORMAT(5X,'NMAK',8X,G12.5,5X,'HOMEP KAHAãA Ñãü >>MAKPO-PACòàP.>>')
+      GO TO 1012
+   94 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      R=RAB(IK)*1.8E+4
+      WRITE(N,2094) R
+ 2094 FORMAT(5X,'DTMCIU',6X,G12.5,5X,'MIN ÑãàTEãúHOCTú àMèìãúCA "Càì" ')
+      GO TO 1012
+   90 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2090) RAB(IK)
+ 2090 FORMAT(5X,'DTCHEK',6X,G12.5,5X,'àHTEPBAã BPEMEHà COáÑAHàü K.T.  ')
+      GO TO 1012
+   95 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2095) TAB(IK)
+ 2095 FORMAT(5X,'NFCHEK',6X,G12.5,5X,'HOMEP KAHAãA Ñãü  #COXP / #BOCT')
+      GO TO 1012
+   97 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2097) TAB(IK)
+ 2097 FORMAT(5X,'NFACHK',6X,G12.5,5X,'HOMEP KAHAãA Ñãü #ACOXP')
+      GO TO 1012
+   15 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2015) TAB(IK)
+ 2015 FORMAT(5X,'DIAL',8X,G12.5,5X,'=0 - èAKETHAü OÅPAÅOTKA,'/
+     *34X,'=1 - àHTEPAKTàBHõâ PEÜàM')
+      GO TO 1012
+   56 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2056) TAB(IK)
+ 2056 FORMAT(5X,'PON',9X,G12.5,5X,'îãAÉ >>èEóATú ON-LINE>> ; =1 - ÑA')
+      GO TO 1012
+   63 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+C     R=RAB(IK)*1.8E+4
+      WRITE(N,2063) RAB(IK)
+ 2063 FORMAT(5X,'SETKA',7X,G12.5,5X,'CETKA èO BPEMEHà Ñãü >>ÉPAî>>,
+     *[ùã. ÉPAÑ.]')
+      GO TO 1012
+  100 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2100) RAB(IK)
+ 2100 FORMAT(5X,'FSTD',8X,G12.5,5X,'OCHOBHAü óACTOTA Ñãü #CèEKTP, [Éñ]')
+      GO TO 1012
+  101 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2101) RAB(IK)
+ 2101 FORMAT(5X,'DFFUR',7X,G12.5,5X,'òAÉ CèEKTPAãúHõX XAP-K Ñãü #CèEKTP
+     * ')
+      GO TO 1012
+  102 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2102) RAB(IK)
+ 2102 FORMAT(5X,'F0FUR',7X,G12.5,5X,'HAóAãúHAü óACTOTA Ñãü #CèEKTP, [Éñ]
+     * ')
+      GO TO 1012
+  103 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2103) RAB(IK)
+ 2103 FORMAT(5X,'FMFUR',7X,G12.5,5X,'KOHEóHAü óACTOTA Ñãü #CèEKTP, [Éñ]
+     * ')
+      GO TO 1012
+  104 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2104) RAB(IK)
+ 2104 FORMAT(5X,'PPFUR',7X,G12.5,5X,'% ìóETA B(F) à C(F) KOùî. B #CèEKTP
+     * ')
+      GO TO 1012
+  105 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2105) RAB(IK)
+ 2105 FORMAT(5X,'IYSTAV',6X,G12.5,5X,'TOK ìCTABKà BEHT. ÉPìèèõ  >>HèóE>>
+     *-3 ')
+      GO TO 1012
+  106 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2106) TAB(IK)
+ 2106 FORMAT(5X,'PPVENT',6X,G12.5,5X,'îãAÉ èEóATà B MOMEHT KOMM-ñàà ')
+      GO TO 1012
+  107 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2107) TAB(IK)
+ 2107 FORMAT(5X,'METVET',6X,G12.5,5X,'#METOÑA PACóETA TXG(HXG):'/
+     *34X,'=0 - àHTEPèOãüñàü èO >>TN>> <-> >>TN1>>'/
+     *34X,'=1 - èEPECóET àá >>TN>> C H0=HXG,'/
+     *34X,'    (HXMIN^=0 - MIN òAÉ PACóETA)'/
+     *34X,'=2 - >>CãàèAHàE>>  >>TN1>> C >>TN>>,'/
+     *34X,'    (EPSKOM èPà ùTOM = TXG-TN)'/
+     *34X,'=>2 - TO ÜE, óTO à =2, HO EPSKOM HE àáMEHüETCü')
+      GO TO 1012
+  108 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2108) TAB(IK)
+ 2108 FORMAT(5X,'IPOL',8X,G12.5,5X,'îãAÉ METOÑA àHTEPèOãüñàà,=1-CèEñ.')
+      GO TO 1012
+  109 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2109) TAB(IK)
+ 2109 FORMAT(5X,'KODSYS',6X,G12.5,5X,'KOÑ METOÑA PEòEHàü >>CãAì>> [Y]*[V
+     *]=[J] '/34X,'=1 - ÅEá àTEP. ìTOóHEHàü'/
+     *34X,'=2 - C àTEP. ìTOóHEHàüMà -> (+2 P.M.)')
+      GO TO 1012
+  110 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2110) RAB(IK)
+ 2110 FORMAT(5X,'EPSSYS',6X,G12.5,5X,'TOóHOCTú PEòEHàü >>CãAì>> (KODSYS
+     *= 2)')
+      GO TO 1012
+  113 IF (KOD.EQ.2.AND.TAB(IK+1).EQ.0) GO TO 1012
+      WRITE(N,2113) TAB(IK)
+ 2113 FORMAT(5X,'KODMU',7X,G12.5,5X,'KOÑ >>PAáÉOHA>> èOCãE KOMMìTAñàà'/
+     *34X,'=0 - >>HEüBHõâ ùâãEP>>,'/
+     *34X,'=1 - METOÑ HE MEHüETCü (áAÑAH MU=...)')
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C
+ 1012 CONTINUE
+      RETURN
+      END
+

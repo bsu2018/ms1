@@ -1,0 +1,40 @@
+         SUBROUTINE PRINT1( MSWALL, RMSWALL )
+CXXX----KOMèãEKC "MS1" --> BEPCàü 1.0  (OT ÑEKAÅPü 1986 É.)------------
+C   èOÑèPOÉPAMMA:  PRINT1( MSWALL )
+C   ------------
+C   HAáHAóEHàE:    KOHTPOãúHAü èEóATú MACCàBA
+C   ----------     ìèPABãüûôàX CãOB MAKPOMOÑEãEâ
+C
+C
+C   METOÑ:         èEóATú OT MSWALL(1) ÑO MSWALL( MSWALL(3)+10 )
+C   -----
+C
+C   èOÑèPOÉPAMMõ: COMMON PROF1;
+C  -------------
+C
+C  èPàMEóAHàE:
+C  -----------
+CZZZ-------------------------------------------------------------------
+         COMMON /PROF1/ MASPRT(200)
+         DIMENSION MSWALL(*), RMSWALL(*)
+         EQUIVALENCE ( NWTRE     , MASPRT(14) )
+C
+         IMAX = MSWALL(3)
+C
+         IM1 = IMAX + 10
+C--------------------------------------------------------------------
+C    èÖóÄíú Ç îÄâã éòàÅéä
+C--------------------------------------------------------------------
+         WRITE(NWTRE,1) IM1
+1        FORMAT( 1X, 128('*')/'    MACCàB MSWALL OT [ 1 ÑO ',I5,' ]')
+         WRITE(NWTRE,2) ( MSWALL(I), I=1,IM1 )
+2        FORMAT(1X, 10I10/ )
+         WRITE(NWTRE,3) IM1
+3        FORMAT( 1X, 128('*')/'    MACCàB RMSWALL OT [ 1 ÑO ',I5,' ]')
+         WRITE(NWTRE,4) ( RMSWALL(I), I=1,IM1 )
+4        FORMAT(1X, 10E10.4/ )
+         WRITE(NWTRE,5)
+5        FORMAT( 1X, 128('*') )
+         RETURN
+         END
+

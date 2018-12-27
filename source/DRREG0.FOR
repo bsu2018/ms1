@@ -1,0 +1,67 @@
+       SUBROUTINE DRREG0 ( KAR, DAT, MSWALL , TOKN , VALLN )
+CXXX****KOMèãEKC "MS1" --> BEPCàü 1.0  (OT ÑEKAÅPü 1986 É.)*************
+C*                                                                     *
+C*  èOÑèPOÉPAMMA :   DRREG0 ( KAR, DAT, MSWALL , TOKN , VALLN )        *
+C*  ------------                                                       *
+C*                                                                     *
+C*  HAáHAóEHàE :  * OÅPAÅOTóàK ÑàPEKTàBõ #PEÜàM *                      *
+C*  ----------      èPàEM CèàCKA à áAÑAHàE "HAóAãúHõX" ÑAHHõX          *
+C*                  TOKOB à HAèPüÜEHàâ COÉãACHO CèàCKA:                *
+C*                  #PEÜàM                                             *
+C*                  "V" Z "ì" K1 K2....;                               *
+C*                  "V" Z "ì" "BCE";                                   *
+C*                  "I" Z "ù" N1[.S1]...N2...N3[.BCE];                 *
+C*                  "GAMMA" Z "ù" N1 N2...;                            *
+C*                  "OMEGA" Z "ù" N1 N2...;                            *
+C*                  "I" Z "ù" "BCE";                                   *
+C*                   #BCE                                              *
+C*           *** ùTO HE PEAãàáOBAHO - TOãúKO OÅHìãEHàE -               *
+C*                                                                     *
+C*  METOÑ :         BBOÑ à PAáÅOP ÑAHHõX , KOHTPOãú à áAèàCú           *
+C*  -----           B TOKN à VALLN COÉãACHO HAãàóàü B MSWALL.          *
+C*                                                                     *
+C*  èAPAMETPõ :    KAR,DAT - OèàCAHàE CTPOKà ÑàPEKTàBõ;                *
+C*  ---------       MSWALL - CèàCOK ìèPABãüûôàX CãOB ùãEMEHTOB;        *
+C*                    TOKN - "TOKà" ùãEMEHTOB;                         *
+C*                   VALLN - "HAèPüÜEHàü" ùãEMEHTOB.                   *
+C*                                                                     *
+C*  èOèPOÉPAMMõ :   1.PROF1 , SERVZ1                                   *
+C*  -----------     2.INPUT2                                           *
+C*                                                                     *
+C*  èPàMEóAHàE:     óACTàóHAü PEAãàáAñàü                               *
+C* ------------     ( MAKET èPOÉPAMMõ ).                               *
+C*                                                                     *
+CZZZ********************************************************************
+      COMMON / PROF1 / MASPRT(200)
+      DIMENSION KAR(1),DAT(1),MSWALL(1),TOKN(1),VALLN(1)
+      EQUIVALENCE ( NNTOK , MASPRT(46) )
+      EQUIVALENCE ( FMSWAL , MASPRT(74) )
+      EQUIVALENCE ( NMKNOT , MASPRT(7) )
+      INTEGER FMSWAL
+C-->
+      EQUIVALENCE ( NWTR , MASPRT(13) )
+      EQUIVALENCE ( NRDR , MASPRT(12) )
+      IF( FMSWAL.EQ.0 ) WRITE (NWTR,1)
+ 1    FORMAT(/' *** HAPìòEH èOPüÑOK CãEÑOBAHàü ÑàPEKTàB.',
+     *' ÑàPEKTàBA àÉHOPàPìETCü ***'/)
+      IF( FMSWAL.EQ.0 ) RETURN
+C-->   áAHìãEHàE ÅEá BCüKOÉO...
+C----------------------------------------------------------------------
+      DO 100 I=1,NNTOK
+      TOKN(I)=0.0
+ 100  CONTINUE
+C----------------------------------------------------------------------
+      DO 200 I=1,NMKNOT
+      VALLN(I)=0.0
+ 200  CONTINUE
+C----------------------------------------------------------------------
+C
+       WRITE(NWTR,3000)
+3000   FORMAT(/' *** Ñ®‡•™‚®¢† #PEÜàM - ØÆ™†  ≠• ‡•†´®ßÆ¢†≠† ***'  )
+       WRITE(NWTR,3004)
+3004  FORMAT(' *** ≠†Á†´Ï≠Î• ß≠†Á•≠®Ô ¢·•Â Ø•‡•¨•≠≠ÎÂ „·‚†≠†¢´®¢†Ó‚·Ô',
+     =' ‡†¢≠Î¨® 0.0 ***'/)
+C$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+      RETURN
+      END
+
